@@ -1,0 +1,14 @@
+mvn clean install
+docker build -t java-web-app-cicd:latest .
+if (docker ps -a | grep 'java-web-app-cicd')
+then
+  docker stop java-web-app-cicd
+  docker rm -f java-web-app-cicd
+fi
+docker run -d -p 8888:8080 --name java-web-app-cicd java-web-app-cicd
+mvn test
+docker login -u sravani1234567 -p sravani1234567
+docker commit java-web-app-cicd sravani1234567/java-web-app-cicd:latest
+docker push sravani1234567/java-web-app-cicd:latest
+kubectl delete deploy --all
+kubectl create -f deploy-tomcat.yaml
